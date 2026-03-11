@@ -6,10 +6,11 @@ import (
 	"os"
 	"time"
 
-	"github.com/axbrunn/portfolio/internal/app"
-	"github.com/axbrunn/portfolio/internal/config"
-	"github.com/axbrunn/portfolio/internal/logger"
-	"github.com/axbrunn/portfolio/internal/web"
+	"github.com/axbrunn/portfolio/cmd/web/build"
+	"github.com/axbrunn/portfolio/internal/app/sdk/mux"
+	"github.com/axbrunn/portfolio/internal/foundation/config"
+	"github.com/axbrunn/portfolio/internal/foundation/logger"
+	"github.com/axbrunn/portfolio/internal/foundation/web"
 )
 
 func main() {
@@ -17,29 +18,13 @@ func main() {
 	logger := logger.New()
 	slog.SetDefault(logger)
 
-	// logger.Info("connecting to database")
-
-	// db, err := app.OpenDB(*cfg)
-	// if err != nil {
-	// 	logger.Error(err.Error())
-	// 	os.Exit(1)
-	// }
-	//
-	// defer func() {
-	// 	logger.Info("closing database connection")
-	// 	db.Close()
-	// }()
-	//
-	// logger.Info("database connection pool established")
-
-	app := &app.Application{
-		Logger: logger,
-		Config: cfg,
-	}
+	webAPI := mux.WebAPI(mux.Config{
+		Log: logger,
+	}, build.Routes())
 
 	srv := web.NewServer(web.Config{
 		Addr:         fmt.Sprintf(":%d", cfg.Port),
-		Handler:      web.Routes(app),
+		Handler:      webAPI,
 		Logger:       logger,
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  5 * time.Second,

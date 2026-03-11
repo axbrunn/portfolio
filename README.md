@@ -2,6 +2,8 @@
 
 Personal portfolio website built with Go and [templ](https://templ.guide).
 
+Ardanlabs Service Starter Kit](https://github.com/ardanlabs/service)
+
 ## Prerequisites
 
 - [Go](https://go.dev/dl/) 1.22+

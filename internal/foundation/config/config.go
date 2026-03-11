@@ -5,17 +5,19 @@ import (
 	"time"
 )
 
+type DBConfig struct {
+	DSN          string
+	MaxOpenConns int
+	MaxIdleConns int
+	MaxIdleTime  time.Duration
+}
+
 type Config struct {
 	Version   string
 	Env       string
 	StaticDir string
 	Port      int
-	db        struct {
-		dsn          string
-		maxOpenConns int
-		maxIdleConns int
-		maxIdleTime  time.Duration
-	}
+	DB        DBConfig
 }
 
 var version = "0.0.1"
@@ -28,10 +30,10 @@ func LoadConfig() *Config {
 	flag.StringVar(&cfg.StaticDir, "static-dir", "./ui/static", "Path to static assets")
 	flag.IntVar(&cfg.Port, "port", 8080, "Webserver port")
 
-	flag.StringVar(&cfg.db.dsn, "db-dsn", "", "MySQL DSN")
-	flag.IntVar(&cfg.db.maxOpenConns, "db-max-open-conns", 25, "MySQL max open connections")
-	flag.IntVar(&cfg.db.maxIdleConns, "db-max-idle-conns", 25, "MySQL max idle connections")
-	flag.DurationVar(&cfg.db.maxIdleTime, "db-max-idle-time", 15*time.Minute, "MySQL max connection idle time")
+	flag.StringVar(&cfg.DB.DSN, "db-dsn", "", "MySQL DSN")
+	flag.IntVar(&cfg.DB.MaxOpenConns, "db-max-open-conns", 25, "MySQL max open connections")
+	flag.IntVar(&cfg.DB.MaxIdleConns, "db-max-idle-conns", 25, "MySQL max idle connections")
+	flag.DurationVar(&cfg.DB.MaxIdleTime, "db-max-idle-time", 15*time.Minute, "MySQL max connection idle time")
 
 	flag.Parse()
 
