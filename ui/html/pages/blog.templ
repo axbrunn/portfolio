@@ -1,0 +1,11 @@
+package pages
+
+import "github.com/axbrunn/portfolio/ui/html/layout"
+
+templ Blog(name string) {
+	@layout.Base("Blog") {
+		<main>
+			<h1>Blog {name}</h1>
+		</main>
+	}
+}

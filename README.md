@@ -2,7 +2,7 @@
 
 Personal portfolio website built with Go and [templ](https://templ.guide).
 
-Ardanlabs Service Starter Kit](https://github.com/ardanlabs/service)
+[Ardanlabs Service Starter Kit](https://github.com/ardanlabs/service)
 
 ## Prerequisites
 
@@ -29,17 +29,4 @@ templ generate
 
 # Run the application
 go run ./cmd/web
-```
-
-## Project Structure
-
-```
-├── cmd/web/          Entry point
-├── internal/
-│   ├── app/          Application logic
-│   ├── config/       Configuration
-│   └── web/          Routes and server
-└── ui/
-    ├── html/         templ templates
-    └── static/       CSS, JS, images
 ```

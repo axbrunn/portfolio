@@ -12,5 +12,5 @@ type Config struct {
 func Routes(mux *http.ServeMux, cfg Config) {
 	h := &handlers{log: cfg.Log}
 
-	mux.HandleFunc("GET /home", h.home)
+	mux.HandleFunc("GET /{$}", h.home)
 }

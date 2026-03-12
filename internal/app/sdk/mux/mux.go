@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/axbrunn/portfolio/internal/app/sdk/middleware"
 	"github.com/axbrunn/portfolio/ui"
 )
 
@@ -22,5 +23,5 @@ func WebAPI(cfg Config, routeAdder RouteAdder) http.Handler {
 
 	routeAdder.Add(mux, cfg)
 
-	return mux
+	return middleware.Logger(cfg.Log, mux)
 }
