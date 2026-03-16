@@ -32,6 +32,7 @@ Thumbs.db
 # Environment
 .env
 .env.*
+!.env.example
 
 # templ generated files
 *_templ.go
