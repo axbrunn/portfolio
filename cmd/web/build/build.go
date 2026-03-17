@@ -1,25 +1,40 @@
 package build
 
 import (
+	"database/sql"
+	"log/slog"
 	"net/http"
 
-	"github.com/axbrunn/portfolio/internal/app/domain/blogapp"
-	"github.com/axbrunn/portfolio/internal/app/domain/homeapp"
-	"github.com/axbrunn/portfolio/internal/app/sdk/mux"
+	"github.com/axbrunn/portfolio/internal/handler/bloghandler"
+	"github.com/axbrunn/portfolio/internal/handler/homehandler"
+	"github.com/axbrunn/portfolio/internal/infrastructure/mux"
+	"github.com/axbrunn/portfolio/internal/repository/blogrepo"
+	"github.com/axbrunn/portfolio/internal/service/blogservice"
 )
 
-type routes struct{}
-
-func Routes() *routes {
-	return &routes{}
+type Config struct {
+	Log *slog.Logger
+	DB  *sql.DB
 }
 
-func (r *routes) Add(m *http.ServeMux, cfg mux.Config) {
-	homeapp.Routes(m, homeapp.Config{
-		Log: cfg.Log,
+type routes struct {
+	cfg Config
+}
+
+func Routes(cfg Config) *routes {
+	return &routes{cfg: cfg}
+}
+
+func (r *routes) Add(m *http.ServeMux, _ mux.Config) {
+	blogRepo := blogrepo.New(r.cfg.DB)
+	blogSvc := blogservice.New(blogRepo)
+
+	homehandler.Routes(m, homehandler.Config{
+		Log: r.cfg.Log,
 	})
 
-	blogapp.Routes(m, blogapp.Config{
-		Log: cfg.Log,
+	bloghandler.Routes(m, bloghandler.Config{
+		Log:     r.cfg.Log,
+		Service: blogSvc,
 	})
 }

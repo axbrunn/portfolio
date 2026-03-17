@@ -1,4 +1,4 @@
-package blogapp
+package bloghandler
 
 import (
 	"log/slog"
@@ -6,11 +6,15 @@ import (
 )
 
 type Config struct {
-	Log *slog.Logger
+	Log     *slog.Logger
+	Service BlogService
 }
 
 func Routes(mux *http.ServeMux, cfg Config) {
-	h := &handlers{log: cfg.Log}
+	h := &handlers{
+		log:     cfg.Log,
+		service: cfg.Service,
+	}
 
 	mux.HandleFunc("GET /blogs", h.getAll)
 	mux.HandleFunc("GET /blog/{slug}", h.get)

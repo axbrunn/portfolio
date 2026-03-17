@@ -1,4 +1,4 @@
-package homeapp
+package homehandler
 
 import (
 	"log/slog"

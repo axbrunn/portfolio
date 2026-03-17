@@ -4,7 +4,7 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/axbrunn/portfolio/internal/app/sdk/middleware"
+	"github.com/axbrunn/portfolio/internal/infrastructure/middleware"
 	"github.com/axbrunn/portfolio/ui"
 )
 

@@ -21,7 +21,7 @@ confirm:
 ## run/web: run the cmd/web application
 .PHONY: run/web
 run/web:
-	@go run ./cmd/api -db-dsn="${DB_USER}:${DB_PASSWORD}@tcp(localhost:${DB_PORT})/${DB_DATABASE}?parseTime=true"
+	@go run ./cmd/web -db-dsn="${DB_USER}:${DB_PASSWORD}@tcp(localhost:${DB_PORT})/${DB_DATABASE}?parseTime=true"
 
 .PHONY: db/connect
 db/connect:
