@@ -9,8 +9,8 @@ import (
 type PostRepository interface {
 	GetAll(ctx context.Context) ([]domain.Post, error)
 	GetBySlug(ctx context.Context, slug string) (domain.Post, error)
-	Create(ctx context.Context, p domain.Post) (domain.Post, error)
-	Update(ctx context.Context, p domain.Post) error
+	Insert(ctx context.Context, p domain.Post) (string, error)
+	Update(ctx context.Context, p domain.Post) (string, error)
 	Delete(ctx context.Context, slug string) error
 }
 
@@ -30,11 +30,11 @@ func (s *Service) GetBySlug(ctx context.Context, slug string) (domain.Post, erro
 	return s.repo.GetBySlug(ctx, slug)
 }
 
-func (s *Service) Create(ctx context.Context, p domain.Post) (domain.Post, error) {
-	return s.repo.Create(ctx, p)
+func (s *Service) Insert(ctx context.Context, p domain.Post) (string, error) {
+	return s.repo.Insert(ctx, p)
 }
 
-func (s *Service) Update(ctx context.Context, p domain.Post) error {
+func (s *Service) Update(ctx context.Context, p domain.Post) (string, error) {
 	return s.repo.Update(ctx, p)
 }
 
