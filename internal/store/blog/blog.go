@@ -1,4 +1,4 @@
-package blogrepo
+package blog
 
 import (
 	"context"
@@ -8,15 +8,15 @@ import (
 	"github.com/axbrunn/portfolio/internal/domain"
 )
 
-type Repository struct {
+type BlogRepository struct {
 	db *sql.DB
 }
 
-func New(db *sql.DB) *Repository {
-	return &Repository{db: db}
+func New(db *sql.DB) *BlogRepository {
+	return &BlogRepository{db: db}
 }
 
-func (r *Repository) GetAll(ctx context.Context) ([]domain.Post, error) {
+func (r *BlogRepository) SelectAll(ctx context.Context) ([]domain.BlogPost, error) {
 	stmt := `
 		SELECT id, title, slug, excerpt, body, published, created_at, updated_at, published_at
 		FROM posts
@@ -29,9 +29,9 @@ func (r *Repository) GetAll(ctx context.Context) ([]domain.Post, error) {
 	}
 	defer rows.Close()
 
-	var posts []domain.Post
+	var posts []domain.BlogPost
 	for rows.Next() {
-		var p domain.Post
+		var p domain.BlogPost
 		err := rows.Scan(&p.ID, &p.Title, &p.Slug, &p.Excerpt, &p.Body, &p.Published, &p.CreatedAt, &p.UpdatedAt, &p.PublishedAt)
 		if err != nil {
 			return nil, err
@@ -42,7 +42,7 @@ func (r *Repository) GetAll(ctx context.Context) ([]domain.Post, error) {
 	return posts, nil
 }
 
-func (r *Repository) GetBySlug(ctx context.Context, slug string) (domain.Post, error) {
+func (r *BlogRepository) SelectBySlug(ctx context.Context, slug string) (domain.BlogPost, error) {
 	stmt := `
 		SELECT id, title, slug, excerpt, body, published, created_at, updated_at, published_at
 		FROM posts
@@ -50,21 +50,21 @@ func (r *Repository) GetBySlug(ctx context.Context, slug string) (domain.Post, e
 
 	row := r.db.QueryRowContext(ctx, stmt, slug)
 
-	var p domain.Post
+	var p domain.BlogPost
 	err := row.Scan(
 		&p.ID, &p.Title, &p.Slug, &p.Excerpt, &p.Body, &p.Published, &p.CreatedAt, &p.UpdatedAt, &p.PublishedAt,
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return domain.Post{}, domain.ErrNoRecord
+			return domain.BlogPost{}, domain.ErrNoRecord
 		} else {
-			return domain.Post{}, err
+			return domain.BlogPost{}, err
 		}
 	}
 	return p, err
 }
 
-func (r *Repository) Insert(ctx context.Context, p domain.Post) (string, error) {
+func (r *BlogRepository) Insert(ctx context.Context, p domain.BlogPost) (string, error) {
 	stmt := `INSERT INTO posts (title, slug, excerpt, body, published, published_at) VALUES (?, ?, ?, ?, ?, ?)`
 
 	_, err := r.db.ExecContext(ctx, stmt, p.Title, p.Slug, p.Excerpt, p.Body, p.Published, p.PublishedAt)
@@ -75,7 +75,7 @@ func (r *Repository) Insert(ctx context.Context, p domain.Post) (string, error) 
 	return p.Slug, nil
 }
 
-func (r *Repository) Update(ctx context.Context, p domain.Post) (string, error) {
+func (r *BlogRepository) Update(ctx context.Context, p domain.BlogPost) (string, error) {
 	stmt := `
 		UPDATE posts
 		SET title = ?, excerpt = ?, body = ?, published = ?, published_at = ?, updated_at = CURRENT_TIMESTAMP
@@ -89,7 +89,7 @@ func (r *Repository) Update(ctx context.Context, p domain.Post) (string, error) 
 	return p.Slug, nil
 }
 
-func (r *Repository) Delete(ctx context.Context, id string) error {
+func (r *BlogRepository) Delete(ctx context.Context, id string) error {
 	stmt := `DELETE FROM posts WHERE slug = ?`
 
 	_, err := r.db.ExecContext(ctx, stmt, id)

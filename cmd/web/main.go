@@ -6,11 +6,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/axbrunn/portfolio/cmd/web/build"
+	"github.com/axbrunn/portfolio/internal/application/routes"
 	"github.com/axbrunn/portfolio/internal/infrastructure/config"
 	"github.com/axbrunn/portfolio/internal/infrastructure/database"
 	"github.com/axbrunn/portfolio/internal/infrastructure/logger"
-	"github.com/axbrunn/portfolio/internal/infrastructure/mux"
 	"github.com/axbrunn/portfolio/internal/infrastructure/web"
 )
 
@@ -26,12 +25,10 @@ func main() {
 	}
 	defer db.Close()
 
-	webAPI := mux.WebAPI(mux.Config{
-		Log: log,
-	}, build.Routes(build.Config{
+	webAPI := routes.New(routes.Config{
 		Log: log,
 		DB:  db,
-	}))
+	})
 
 	srv := web.NewServer(web.Config{
 		Addr:         fmt.Sprintf(":%d", cfg.Port),

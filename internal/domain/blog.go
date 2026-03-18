@@ -2,7 +2,7 @@ package domain
 
 import "time"
 
-type Post struct {
+type BlogPost struct {
 	ID          uint
 	Title       string
 	Slug        string
