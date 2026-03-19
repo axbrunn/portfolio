@@ -25,15 +25,17 @@ func New(cfg Config) http.Handler {
 	blogrepo := blogrepo.New(cfg.DB)
 	blogsvc := blogbus.New(blogrepo)
 
-	home := handlers.NewHome(cfg.Log)
-	blog := handlers.NewBlog(cfg.Log, blogsvc)
+	homeHandler := handlers.NewHome(cfg.Log)
+	blogHandler := handlers.NewBlog(cfg.Log, blogsvc)
 
-	mux.HandleFunc("GET /{$}", home.Home)
-	mux.HandleFunc("GET /blogs", blog.GetAll)
-	mux.HandleFunc("GET /blog/{slug}", blog.Get)
-	mux.HandleFunc("POST /blog", blog.Insert)
-	mux.HandleFunc("PUT /blog/{slug}", blog.Update)
-	mux.HandleFunc("DELETE /blog/{slug}", blog.Delete)
+	mux.HandleFunc("GET /{$}", homeHandler.Home)
+
+	mux.HandleFunc("GET /blog/{$}", blogHandler.ViewAll)
+	mux.HandleFunc("GET /blog/view/{slug}", blogHandler.View)
+	mux.HandleFunc("GET /blog/create/", blogHandler.Create)
+	mux.HandleFunc("POST /blog/create", blogHandler.CreatePost)
+	mux.HandleFunc("PUT /blog/update/{slug}", blogHandler.Update)
+	mux.HandleFunc("DELETE /blog/{slug}", blogHandler.Delete)
 
 	return middleware.Logger(cfg.Log, mux)
 }

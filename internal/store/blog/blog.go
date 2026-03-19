@@ -65,7 +65,8 @@ func (r *BlogRepository) SelectBySlug(ctx context.Context, slug string) (domain.
 }
 
 func (r *BlogRepository) Insert(ctx context.Context, p domain.BlogPost) (string, error) {
-	stmt := `INSERT INTO posts (title, slug, excerpt, body, published, published_at) VALUES (?, ?, ?, ?, ?, ?)`
+	stmt := `INSERT INTO posts (title, slug, excerpt, body, published, published_at)
+	VALUES (?, ?, ?, ?, ?, UTC_TIMESTAMP())`
 
 	_, err := r.db.ExecContext(ctx, stmt, p.Title, p.Slug, p.Excerpt, p.Body, p.Published, p.PublishedAt)
 	if err != nil {
