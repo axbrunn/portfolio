@@ -8,7 +8,6 @@ import (
 
 	"github.com/axbrunn/portfolio/internal/application/helpers"
 	"github.com/axbrunn/portfolio/internal/business/blog"
-	"github.com/axbrunn/portfolio/internal/domain"
 	"github.com/axbrunn/portfolio/ui/html/pages"
 )
 
@@ -34,7 +33,6 @@ func (h *Blog) ViewAll(w http.ResponseWriter, r *http.Request) {
 	for _, post := range posts {
 		fmt.Fprintf(w, "%+v\n", post)
 	}
-
 }
 
 func (h *Blog) View(w http.ResponseWriter, r *http.Request) {
@@ -42,7 +40,7 @@ func (h *Blog) View(w http.ResponseWriter, r *http.Request) {
 
 	post, err := h.svc.GetBySlug(r.Context(), slug)
 	if err != nil {
-		if errors.Is(err, domain.ErrNoRecord) {
+		if errors.Is(err, blog.ErrNoRecord) {
 			http.NotFound(w, r)
 		} else {
 			helpers.ServerError(h.logger, w, r, err)
@@ -50,10 +48,11 @@ func (h *Blog) View(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pages.Blog(post.Title).Render(r.Context(), w)
+	pages.BlogView(post.Title).Render(r.Context(), w)
 }
 
 func (h *Blog) Create(w http.ResponseWriter, r *http.Request) {
+	pages.BlogCreate().Render(r.Context(), w)
 }
 
 func (h *Blog) CreatePost(w http.ResponseWriter, r *http.Request) {

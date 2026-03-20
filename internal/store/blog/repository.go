@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"errors"
 
-	"github.com/axbrunn/portfolio/internal/domain"
+	bizblog "github.com/axbrunn/portfolio/internal/business/blog"
 )
 
 type BlogRepository struct {
@@ -16,7 +16,7 @@ func New(db *sql.DB) *BlogRepository {
 	return &BlogRepository{db: db}
 }
 
-func (r *BlogRepository) SelectAll(ctx context.Context) ([]domain.BlogPost, error) {
+func (r *BlogRepository) SelectAll(ctx context.Context) ([]bizblog.BlogPost, error) {
 	stmt := `
 		SELECT id, title, slug, excerpt, body, published, created_at, updated_at, published_at
 		FROM posts
@@ -29,9 +29,9 @@ func (r *BlogRepository) SelectAll(ctx context.Context) ([]domain.BlogPost, erro
 	}
 	defer rows.Close()
 
-	var posts []domain.BlogPost
+	var posts []bizblog.BlogPost
 	for rows.Next() {
-		var p domain.BlogPost
+		var p bizblog.BlogPost
 		err := rows.Scan(&p.ID, &p.Title, &p.Slug, &p.Excerpt, &p.Body, &p.Published, &p.CreatedAt, &p.UpdatedAt, &p.PublishedAt)
 		if err != nil {
 			return nil, err
@@ -42,7 +42,7 @@ func (r *BlogRepository) SelectAll(ctx context.Context) ([]domain.BlogPost, erro
 	return posts, nil
 }
 
-func (r *BlogRepository) SelectBySlug(ctx context.Context, slug string) (domain.BlogPost, error) {
+func (r *BlogRepository) SelectBySlug(ctx context.Context, slug string) (bizblog.BlogPost, error) {
 	stmt := `
 		SELECT id, title, slug, excerpt, body, published, created_at, updated_at, published_at
 		FROM posts
@@ -50,21 +50,21 @@ func (r *BlogRepository) SelectBySlug(ctx context.Context, slug string) (domain.
 
 	row := r.db.QueryRowContext(ctx, stmt, slug)
 
-	var p domain.BlogPost
+	var p bizblog.BlogPost
 	err := row.Scan(
 		&p.ID, &p.Title, &p.Slug, &p.Excerpt, &p.Body, &p.Published, &p.CreatedAt, &p.UpdatedAt, &p.PublishedAt,
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return domain.BlogPost{}, domain.ErrNoRecord
+			return bizblog.BlogPost{}, bizblog.ErrNoRecord
 		} else {
-			return domain.BlogPost{}, err
+			return bizblog.BlogPost{}, err
 		}
 	}
 	return p, err
 }
 
-func (r *BlogRepository) Insert(ctx context.Context, p domain.BlogPost) (string, error) {
+func (r *BlogRepository) Insert(ctx context.Context, p bizblog.BlogPost) (string, error) {
 	stmt := `INSERT INTO posts (title, slug, excerpt, body, published, published_at)
 	VALUES (?, ?, ?, ?, ?, UTC_TIMESTAMP())`
 
@@ -76,7 +76,7 @@ func (r *BlogRepository) Insert(ctx context.Context, p domain.BlogPost) (string,
 	return p.Slug, nil
 }
 
-func (r *BlogRepository) Update(ctx context.Context, p domain.BlogPost) (string, error) {
+func (r *BlogRepository) Update(ctx context.Context, p bizblog.BlogPost) (string, error) {
 	stmt := `
 		UPDATE posts
 		SET title = ?, excerpt = ?, body = ?, published = ?, published_at = ?, updated_at = CURRENT_TIMESTAMP

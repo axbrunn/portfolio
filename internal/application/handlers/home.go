@@ -16,5 +16,5 @@ func NewHome(log *slog.Logger) *Home {
 }
 
 func (h *Home) Home(w http.ResponseWriter, r *http.Request) {
-	pages.Home().Render(r.Context(), w)
+	pages.HomeView().Render(r.Context(), w)
 }

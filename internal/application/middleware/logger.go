@@ -7,7 +7,7 @@ import (
 
 func Logger(log *slog.Logger, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Info("received request",
+		slog.Info("received request",
 			"ip", r.RemoteAddr,
 			"proto", r.Proto,
 			"method", r.Method,
