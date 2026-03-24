@@ -10,6 +10,6 @@ func ServerError(logger *slog.Logger, w http.ResponseWriter, r *http.Request, er
 	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 }
 
-func clientError(w http.ResponseWriter, status int) {
+func ClientError(w http.ResponseWriter, status int) {
 	http.Error(w, http.StatusText(status), status)
 }

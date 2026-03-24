@@ -31,12 +31,14 @@ func (r *BlogRepository) SelectAll(ctx context.Context) ([]bizblog.BlogPost, err
 
 	var posts []bizblog.BlogPost
 	for rows.Next() {
-		var p bizblog.BlogPost
-		err := rows.Scan(&p.ID, &p.Title, &p.Slug, &p.Excerpt, &p.Body, &p.Published, &p.CreatedAt, &p.UpdatedAt, &p.PublishedAt)
+		// Scan in het store-interne model zodat DB-types (sql.NullTime) correct worden gelezen.
+		var m blogPostModel
+		err := rows.Scan(&m.ID, &m.Title, &m.Slug, &m.Excerpt, &m.Body, &m.Published, &m.CreatedAt, &m.UpdatedAt, &m.PublishedAt)
 		if err != nil {
 			return nil, err
 		}
-		posts = append(posts, p)
+		// Converteer naar business type voordat we het teruggeven aan de service.
+		posts = append(posts, toBusiness(m))
 	}
 
 	return posts, nil
@@ -50,25 +52,52 @@ func (r *BlogRepository) SelectBySlug(ctx context.Context, slug string) (bizblog
 
 	row := r.db.QueryRowContext(ctx, stmt, slug)
 
-	var p bizblog.BlogPost
-	err := row.Scan(
-		&p.ID, &p.Title, &p.Slug, &p.Excerpt, &p.Body, &p.Published, &p.CreatedAt, &p.UpdatedAt, &p.PublishedAt,
-	)
+	// Scan in het store-interne model zodat DB-types (sql.NullTime) correct worden gelezen.
+	var m blogPostModel
+	err := row.Scan(&m.ID, &m.Title, &m.Slug, &m.Excerpt, &m.Body, &m.Published, &m.CreatedAt, &m.UpdatedAt, &m.PublishedAt)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return bizblog.BlogPost{}, bizblog.ErrNoRecord
-		} else {
-			return bizblog.BlogPost{}, err
 		}
+		return bizblog.BlogPost{}, err
 	}
-	return p, err
+
+	// Converteer naar business type voordat we het teruggeven aan de service.
+	return toBusiness(m), nil
+}
+
+func (r *BlogRepository) SelectByID(ctx context.Context, id uint) (bizblog.BlogPost, error) {
+	stmt := `
+		SELECT id, title, slug, excerpt, body, published, created_at, updated_at, published_at
+		FROM posts
+		WHERE id = ?`
+
+	row := r.db.QueryRowContext(ctx, stmt, id)
+
+	// Scan in het store-interne model zodat DB-types (sql.NullTime) correct worden gelezen.
+	var m blogPostModel
+	err := row.Scan(&m.ID, &m.Title, &m.Slug, &m.Excerpt, &m.Body, &m.Published, &m.CreatedAt, &m.UpdatedAt, &m.PublishedAt)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return bizblog.BlogPost{}, bizblog.ErrNoRecord
+		}
+		return bizblog.BlogPost{}, err
+	}
+
+	// Converteer naar business type voordat we het teruggeven aan de service.
+	return toBusiness(m), nil
 }
 
 func (r *BlogRepository) Insert(ctx context.Context, p bizblog.BlogPost) (string, error) {
-	stmt := `INSERT INTO posts (title, slug, excerpt, body, published, published_at)
-	VALUES (?, ?, ?, ?, ?, UTC_TIMESTAMP())`
+	// Converteer naar model zodat PublishedAt als sql.NullTime wordt meegegeven.
+	// Als de post niet gepubliceerd is, heeft de business layer PublishedAt op nil gelaten
+	// en schrijft de mapper dat als NULL naar de DB.
+	m := toModel(p)
 
-	_, err := r.db.ExecContext(ctx, stmt, p.Title, p.Slug, p.Excerpt, p.Body, p.Published, p.PublishedAt)
+	stmt := `INSERT INTO posts (title, slug, excerpt, body, published, published_at)
+	VALUES (?, ?, ?, ?, ?, ?)`
+
+	_, err := r.db.ExecContext(ctx, stmt, m.Title, m.Slug, m.Excerpt, m.Body, m.Published, m.PublishedAt)
 	if err != nil {
 		return "", err
 	}
@@ -77,12 +106,15 @@ func (r *BlogRepository) Insert(ctx context.Context, p bizblog.BlogPost) (string
 }
 
 func (r *BlogRepository) Update(ctx context.Context, p bizblog.BlogPost) (string, error) {
+	// Converteer business type naar model zodat we sql.NullTime kunnen meegeven aan de query.
+	m := toModel(p)
+
 	stmt := `
 		UPDATE posts
 		SET title = ?, excerpt = ?, body = ?, published = ?, published_at = ?, updated_at = CURRENT_TIMESTAMP
 		WHERE slug = ?`
 
-	_, err := r.db.ExecContext(ctx, stmt, p.Title, p.Excerpt, p.Body, p.Published, p.PublishedAt, p.Slug)
+	_, err := r.db.ExecContext(ctx, stmt, m.Title, m.Excerpt, m.Body, m.Published, m.PublishedAt, m.Slug)
 	if err != nil {
 		return "", err
 	}
@@ -90,8 +122,8 @@ func (r *BlogRepository) Update(ctx context.Context, p bizblog.BlogPost) (string
 	return p.Slug, nil
 }
 
-func (r *BlogRepository) Delete(ctx context.Context, id string) error {
-	stmt := `DELETE FROM posts WHERE slug = ?`
+func (r *BlogRepository) DeleteByID(ctx context.Context, id uint) error {
+	stmt := `DELETE FROM posts WHERE id = ?`
 
 	_, err := r.db.ExecContext(ctx, stmt, id)
 	return err

@@ -2,10 +2,61 @@ package pages
 
 import "github.com/axbrunn/portfolio/ui/html/layout"
 
-templ BlogCreate() {
+type BlogCreateForm struct {
+	Title       string            `form:"title"`
+	Slug        string            `form:"slug"`
+	Excerpt     string            `form:"excerpt"`
+	Body        string            `form:"body"`
+	Published   bool              `form:"published"`
+	FieldErrors map[string]string `form:"-"`
+}
+
+templ BlogCreate(form BlogCreateForm) {
 	@layout.Base("Create Blog") {
 		<main>
 			<h1>Blog Create</h1>
+			<form action="/blog/create" method="POST">
+				<div>
+					<label for="title">Title</label>
+					<input type="text" id="title" name="title" value={ form.Title }/>
+					if err, ok := form.FieldErrors["title"]; ok {
+						<span>{ err }</span>
+					}
+				</div>
+				<div>
+					<label for="slug">Slug</label>
+					<input type="text" id="slug" name="slug" value={ form.Slug }/>
+					if err, ok := form.FieldErrors["slug"]; ok {
+						<span>{ err }</span>
+					}
+				</div>
+				<div>
+					<label for="excerpt">Excerpt</label>
+					<textarea id="excerpt" name="excerpt" rows="3">{ form.Excerpt }</textarea>
+					if err, ok := form.FieldErrors["excerpt"]; ok {
+						<span>{ err }</span>
+					}
+				</div>
+				<div>
+					<label for="body">Body</label>
+					<textarea id="body" name="body" rows="10">{ form.Body }</textarea>
+					if err, ok := form.FieldErrors["body"]; ok {
+						<span>{ err }</span>
+					}
+				</div>
+				<div>
+					<label for="published">Published</label>
+					if form.Published {
+						<input type="checkbox" id="published" name="published" value="true" checked/>
+					} else {
+						<input type="checkbox" id="published" name="published" value="true"/>
+					}
+					if err, ok := form.FieldErrors["published"]; ok {
+						<span>{ err }</span>
+					}
+				</div>
+				<button type="submit">Create</button>
+			</form>
 		</main>
 	}
 }
