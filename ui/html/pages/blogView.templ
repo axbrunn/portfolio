@@ -2,10 +2,18 @@ package pages
 
 import "github.com/axbrunn/portfolio/ui/html/layout"
 
-templ BlogView(name string) {
-	@layout.Base("Blog") {
+type Post struct {
+	Title   string
+	Excerpt string
+	Body    string
+}
+
+templ BlogView(post Post) {
+	@layout.Base(post.Title) {
 		<main>
-			<h1>Blog { name }</h1>
+			<h1>{ post.Title }</h1>
+			<p>{ post.Excerpt }</p>
+			<p>{ post.Body }</p>
 		</main>
 	}
 }

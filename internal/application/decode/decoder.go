@@ -1,4 +1,4 @@
-package helpers
+package decode
 
 import (
 	"errors"
@@ -9,7 +9,7 @@ import (
 
 var formDecoder = form.NewDecoder()
 
-func DecodePostForm(r *http.Request, dst any) error {
+func PostForm(r *http.Request, dst any) error {
 	err := r.ParseForm()
 	if err != nil {
 		return err

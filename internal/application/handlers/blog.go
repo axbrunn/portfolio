@@ -6,7 +6,8 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/axbrunn/portfolio/internal/application/helpers"
+	"github.com/axbrunn/portfolio/internal/application/decode"
+	"github.com/axbrunn/portfolio/internal/application/respond"
 	"github.com/axbrunn/portfolio/internal/business/blog"
 	"github.com/axbrunn/portfolio/ui/html/pages"
 )
@@ -26,7 +27,7 @@ func NewBlog(log *slog.Logger, svc blog.Service) *Blog {
 func (h *Blog) ViewAll(w http.ResponseWriter, r *http.Request) {
 	posts, err := h.svc.ViewAll(r.Context())
 	if err != nil {
-		helpers.ServerError(h.logger, w, r, err)
+		respond.ServerError(h.logger, w, r, err)
 		return
 	}
 
@@ -43,12 +44,18 @@ func (h *Blog) View(w http.ResponseWriter, r *http.Request) {
 		if errors.Is(err, blog.ErrNoRecord) {
 			http.NotFound(w, r)
 		} else {
-			helpers.ServerError(h.logger, w, r, err)
+			respond.ServerError(h.logger, w, r, err)
 		}
 		return
 	}
 
-	pages.BlogView(post.Title).Render(r.Context(), w)
+	view := pages.Post{
+		Title:   post.Title,
+		Excerpt: post.Excerpt,
+		Body:    post.Body,
+	}
+
+	pages.BlogView(view).Render(r.Context(), w)
 }
 
 func (h *Blog) Create(w http.ResponseWriter, r *http.Request) {
@@ -59,7 +66,7 @@ func (h *Blog) CreatePost(w http.ResponseWriter, r *http.Request) {
 	r.Body = http.MaxBytesReader(w, r.Body, 2<<20)
 
 	var form pages.BlogCreateForm
-	err := helpers.DecodePostForm(r, &form)
+	err := decode.PostForm(r, &form)
 
 	slug, err := h.svc.CreatePost(r.Context(), form.Title, form.Slug, form.Excerpt, form.Body, form.Published)
 	if err != nil {
@@ -71,7 +78,7 @@ func (h *Blog) CreatePost(w http.ResponseWriter, r *http.Request) {
 			pages.BlogCreate(form).Render(r.Context(), w)
 			return
 		}
-		helpers.ServerError(h.logger, w, r, err)
+		respond.ServerError(h.logger, w, r, err)
 		return
 	}
 

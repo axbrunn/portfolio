@@ -1,4 +1,4 @@
-package helpers
+package respond
 
 import (
 	"log/slog"

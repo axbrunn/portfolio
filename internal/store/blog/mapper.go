@@ -3,13 +3,13 @@ package blog
 import (
 	"database/sql"
 
-	bizblog "github.com/axbrunn/portfolio/internal/business/blog"
+	blogbus "github.com/axbrunn/portfolio/internal/business/blog"
 )
 
 // toModel zet een business BlogPost om naar het store-interne model.
 // Gebruik dit voordat je iets naar de DB schrijft (Insert, Update).
 // Zo hoeft de business layer niets te weten over sql.NullTime of andere DB-types.
-func toModel(p bizblog.BlogPost) blogPostModel {
+func toModel(p blogbus.BlogPost) blogPostModel {
 	m := blogPostModel{
 		ID:        p.ID,
 		Title:     p.Title,
@@ -32,8 +32,8 @@ func toModel(p bizblog.BlogPost) blogPostModel {
 // toBusiness zet een store-intern model om naar een business BlogPost.
 // Gebruik dit nadat je iets uit de DB hebt gelezen (Select*).
 // De business layer ontvangt altijd schone Go-types, nooit DB-specifieke types.
-func toBusiness(m blogPostModel) bizblog.BlogPost {
-	p := bizblog.BlogPost{
+func toBusiness(m blogPostModel) blogbus.BlogPost {
+	p := blogbus.BlogPost{
 		ID:        m.ID,
 		Title:     m.Title,
 		Slug:      m.Slug,
