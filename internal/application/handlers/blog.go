@@ -82,7 +82,7 @@ func (h *Blog) CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, fmt.Sprintf("/blog/view/%s", slug), http.StatusSeeOther)
+	http.Redirect(w, r, fmt.Sprintf("/blog/%s", slug), http.StatusSeeOther)
 }
 
 func (h *Blog) Update(w http.ResponseWriter, r *http.Request) {
