@@ -26,7 +26,7 @@ func New(r Router) http.Handler {
 	mux.HandleFunc("GET /blog/{slug}", r.BlogHandler.View)
 	mux.HandleFunc("GET /blog/create/", r.BlogHandler.Create)
 	mux.HandleFunc("POST /blog/create", r.BlogHandler.CreatePost)
-	mux.HandleFunc("GET /blog/update/{id}", r.BlogHandler.Update)
+	mux.HandleFunc("GET /blog/update/{slug}", r.BlogHandler.UpdateView)
 	mux.HandleFunc("PUT /blog/update/{id}", r.BlogHandler.UpdatePut)
 	mux.HandleFunc("DELETE /blog/{id}", r.BlogHandler.Delete)
 

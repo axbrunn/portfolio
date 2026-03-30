@@ -5,8 +5,8 @@ import (
 )
 
 type Service interface {
-	ViewAll(ctx context.Context) ([]BlogPost, error)
-	View(ctx context.Context, slug string) (BlogPost, error)
+	GetAll(ctx context.Context) ([]BlogPost, error)
+	Get(ctx context.Context, slug string) (BlogPost, error)
 	CreatePost(ctx context.Context, title, slug, excerpt, body string, published bool) (string, error)
 	Update(ctx context.Context, id uint) (BlogPost, error)
 	UpdatePut(ctx context.Context, p BlogPost) (string, error)

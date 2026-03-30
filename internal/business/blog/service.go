@@ -28,11 +28,11 @@ func New(repo Repository) *BlogService {
 	return &BlogService{repo: repo}
 }
 
-func (s *BlogService) ViewAll(ctx context.Context) ([]BlogPost, error) {
+func (s *BlogService) GetAll(ctx context.Context) ([]BlogPost, error) {
 	return s.repo.SelectAll(ctx)
 }
 
-func (s *BlogService) View(ctx context.Context, slug string) (BlogPost, error) {
+func (s *BlogService) Get(ctx context.Context, slug string) (BlogPost, error) {
 	return s.repo.SelectBySlug(ctx, slug)
 }
 

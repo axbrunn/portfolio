@@ -25,7 +25,7 @@ func NewBlog(log *slog.Logger, svc blog.Service) *Blog {
 }
 
 func (h *Blog) ViewAll(w http.ResponseWriter, r *http.Request) {
-	posts, err := h.svc.ViewAll(r.Context())
+	posts, err := h.svc.GetAll(r.Context())
 	if err != nil {
 		respond.ServerError(h.logger, w, r, err)
 		return
@@ -39,7 +39,7 @@ func (h *Blog) ViewAll(w http.ResponseWriter, r *http.Request) {
 func (h *Blog) View(w http.ResponseWriter, r *http.Request) {
 	slug := r.PathValue("slug")
 
-	post, err := h.svc.View(r.Context(), slug)
+	post, err := h.svc.Get(r.Context(), slug)
 	if err != nil {
 		if errors.Is(err, blog.ErrNoRecord) {
 			http.NotFound(w, r)
@@ -85,7 +85,29 @@ func (h *Blog) CreatePost(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, fmt.Sprintf("/blog/%s", slug), http.StatusSeeOther)
 }
 
-func (h *Blog) Update(w http.ResponseWriter, r *http.Request) {
+func (h *Blog) UpdateView(w http.ResponseWriter, r *http.Request) {
+	slug := r.PathValue("slug")
+
+	post, err := h.svc.Get(r.Context(), slug)
+	if errors.Is(err, blog.ErrNoRecord) {
+		http.NotFound(w, r)
+	}
+	if err != nil {
+		respond.ServerError(h.logger, w, r, err)
+	}
+
+	var form pages.BlogUpdateForm
+
+	form = pages.BlogUpdateForm{
+		ID:        post.ID,
+		Title:     post.Title,
+		Slug:      post.Slug,
+		Excerpt:   post.Excerpt,
+		Body:      post.Body,
+		Published: post.Published,
+	}
+
+	pages.BlogUpdate(form).Render(r.Context(), w)
 }
 
 func (h *Blog) UpdatePut(w http.ResponseWriter, r *http.Request) {
