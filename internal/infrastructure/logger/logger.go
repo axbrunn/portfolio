@@ -5,9 +5,9 @@ import (
 	"os"
 )
 
-func New() *slog.Logger {
+func New(cfg Config) *slog.Logger {
 	opts := &slog.HandlerOptions{
-		Level: slog.LevelInfo,
+		Level: cfg.slogLevel(),
 		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
 			if a.Key == slog.TimeKey {
 				t := a.Value.Time()
@@ -20,6 +20,13 @@ func New() *slog.Logger {
 		},
 	}
 
-	handler := slog.NewTextHandler(os.Stdout, opts)
+	var handler slog.Handler
+	switch cfg.Format {
+	case FormatJSON:
+		handler = slog.NewJSONHandler(os.Stdout, opts)
+	default:
+		handler = slog.NewTextHandler(os.Stdout, opts)
+	}
+
 	return slog.New(handler)
 }

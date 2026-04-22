@@ -19,7 +19,10 @@ import (
 
 func main() {
 	cfg := config.LoadConfig()
-	log := logger.New()
+	log := logger.New(logger.Config{
+		Level:  "debug",
+		Format: logger.FormatJSON,
+	}).With("service", "web")
 	slog.SetDefault(log)
 
 	db, err := database.Open(cfg.DB)
